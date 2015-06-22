@@ -1,0 +1,68 @@
+#!/usr/bin/env node
+var program = require('commander')
+	colors = require('colors')
+	async = require('async')
+	path = require('path')
+	os = require('os')
+	fs = require('fs')
+	util = require('util')
+	zlib = require('zlib')
+	tar = require('tar-fs')
+
+var config = JSON.parse(fs.readFileSync('package.json'))
+var version = config.version
+var name = config.name
+var arch = process.arch
+var plat = os.platform()
+
+program
+	.version(version)
+	.option('-c, --channel [dev]', 'Select the channel [release, beta, dev, master]', 'master')
+	.option('-C, --configuration [configuration]', 'Select the configuration [debug, release]', 'debug')
+	.option('-a, --arch [arch]', 'Select the architecture of the build to package [x86, x64]', 'x64')
+	.parse(process.argv)
+
+var outName = `${name}-${version}-${plat}-${program.arch}-${program.configuration}-${program.channel}.tgz`
+
+var dir = program.configuration === 'release'
+	? 'build/Release'
+	: 'build/Debug'
+
+var binArch = program.arch === 'x86' ? 'ia32' : program.arch
+var binName = `${name}-${binArch}`
+
+fs.readdir(dir, function (err, result) {
+	if (err) {
+		console.log('[' + 'error'.red + '] ' + err);
+		return process.exit(1)
+	}
+	var entries = []
+	result.forEach(function (f) {
+		if (f.indexOf(binName) < 0)
+			return
+		if (path.extname(f) === '.exe')
+			entries.push(path.join(dir, f))
+		if (path.extname(f) === '.node')
+			entries.push(path.join(dir, f))
+		if (path.extname(f) === '.pdb')
+			entries.push(path.join(dir, f))
+		if (path.extname(f) === '.lib')
+			entries.push(path.join(dir, f))
+        if (path.extname(f) === '.a')
+            entries.push(path.join(dir, f))
+	})
+	if (entries.length === 0) {
+		console.log('[' + 'error'.red + '] no output found.')
+		return process.exit(1)
+	}
+	entries.forEach(function(e) {
+		console.log('[' + 'packing'.magenta + '] ' + e.gray);
+	})
+	var pack = tar.pack('.', {
+		entries: entries
+	})
+	var gzip = zlib.createGzip();
+	var out = fs.createWriteStream(outName)
+	pack.pipe(gzip).pipe(out)
+	console.log('[' + 'success'.green + '] ' + outName)
+})

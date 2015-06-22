@@ -1,0 +1,37 @@
+{
+  "name": "electron-updater-tools",
+  "version": "0.0.1",
+  "description": "Tools for building native addons compatible with electron-updater",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evolvelabs/electron-updater-tools.git"
+  },
+  "keywords": [
+    "electron",
+    "electron-updater"
+  ],
+  "author": "Justin Chase <justinmchase>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/evolvelabs/electron-updater-tools/issues"
+  },
+  "homepage": "https://github.com/evolvelabs/electron-updater-tools#readme",
+  "bin": {
+    "nwb": "./bin/nwb",
+    "nwpack": "./bin/nwpack",
+    "nwpub": "./bin/nwpub",
+    "binget": "./bin/binget"
+  },
+  "dependencies": {
+    "async": "^0.9.0",
+    "colors": "^1.0.3",
+    "commander": "^2.7.1",
+    "s3": "^4.4.0",
+    "shelljs": "^0.4.0",
+    "tar-fs": "^1.5.0"
+  }
+}

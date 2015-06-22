@@ -1,0 +1,97 @@
+#!/usr/bin/env node
+var program = require('commander')
+	colors = require('colors')
+	path = require('path')
+	os = require('os')
+	fs = require('fs')
+	util = require('util')
+	s3 = require('s3')
+
+var config = JSON.parse(fs.readFileSync('package.json'))
+var version = config.version
+var name = config.name
+var arch = process.arch
+var plat = os.platform()
+
+program
+	.version(version)
+	.option('-c, --channel [dev]', 'Select the channel [release, beta, dev, master]', 'master')
+	.option('-C, --configuration [configuration]', 'Select the configuration [debug, release]', 'debug')
+	.option('-a, --arch [arch]', 'Select the architecture to deploy [x86, x64]', 'x64')
+	.option('-i, --accessKeyId [id]', 'Specify the S3 Access Key Id to use')
+	.option('-k, --secretAccessKey [key]', 'Specify the S3 Secret Access key to use')
+	.parse(process.argv)
+
+var fileName = `${name}-${version}-${plat}-${program.arch}-${program.configuration}-${program.channel}.tgz`
+
+fs.readFile('.amazon', {encoding: 'utf8'}, function (err, data) {
+	var credentials = {
+		accessKeyId: program.accessKeyId,
+		secretAccessKey: program.secretAccessKey
+	}
+	if (!program.accessKeyId || !program.secretAccessKey) {
+		if(err) {
+			console.log('[' + 'error'.red + '] You must create a .amazon file before continuing.')
+			console.log('  Create an .amazon file in the root dir with the following conents:')
+			console.log('  {')
+			console.log('     "accessKeyId": "your s3 key",')
+			console.log('     "secretAccessKey": "your s3 secret"')
+			console.log('  }')
+			console.log('  The access keys are in 1pass')
+			console.log('  ' + 'WARNING'.yellow + ': DO NOT CHECK IN YOUR .amazon file!')
+			console.log('  Add an entry into your ' + '.gitignore'.green + ' file so make sure that this file is not checked in accidentally.')
+			return
+		} else {
+			credentials = JSON.parse(data);
+		}
+	}
+
+	var client = s3.createClient({
+	  maxAsyncS3: 20,     // this is the default 
+	  s3RetryCount: 3,    // this is the default 
+	  s3RetryDelay: 1000, // this is the default 
+	  multipartUploadThreshold: 20971520, // this is the default (20 MB) 
+	  multipartUploadSize: 15728640, // this is the default (15 MB) 
+	  s3Options: credentials
+	})
+
+	var progress = 0
+	var error = false
+	var uploader = client.uploadFile({
+	  localFile: fileName,
+	  s3Params: {
+	    Bucket: "evolve-bin",
+	    Key:  name + "/" + fileName,
+	    ACL: 'public-read'
+	    // other options supported by putObject, except Body and ContentLength. 
+	    // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property 
+	  }
+	})
+
+	console.log('[' + name.magenta + '] ' + fileName.gray);
+	process.stdout.write('[' + name.magenta + '] ' + 'uploading'.gray);
+	uploader.on('error', function(err) {
+		console.log()
+		console.error('[' + 'error'.red + '] ' + err)
+		console.error(err.stack)
+		error = true
+	})
+	uploader.on('progress', function() {
+		var p = (uploader.progressAmount / uploader.progressTotal) * 10;
+		if (p > progress) {
+			for (; progress < p; progress++) {
+				process.stdout.write('.')
+			}
+		}
+	})
+	uploader.on('end', function() {
+		console.log()
+		if(!error) {
+			var url = `https://s3.amazonaws.com/evolve-bin/${name}/${fileName}`
+			console.log('[' + name.magenta + '] ' + url.gray);
+			console.log('[' + name.magenta + '] ' + 'success.'.green);
+		} else {
+			process.exit(1)
+		}
+	})
+})

@@ -1,0 +1,44 @@
+#!/bin/bash
+configure=""
+debug="-d"
+nw_target="0.12.0"
+arch=""
+
+if [ `uname` = 'Linux' ]; then
+  msvs=""
+else
+  msvs="--msvs_version=2013"
+fi
+
+for i in "$@"; do
+case $i in
+    # configure
+    -c|--configure|configure)
+    configure="configure"
+    ;;
+
+    #debug
+    -r|--release|release)
+    debug=""
+    ;;
+    -d|--debug|debug)
+    debug="-d" # default
+    ;;
+
+    #arch
+    -x86|x86)
+    arch="--arch=ia32"
+    ;;
+    -x64|x64)
+    arch="" # default
+    ;;
+
+    # unknown option
+    *) 
+    echo "Unknown option: $i"
+    exit 1
+    ;;
+esac
+done
+
+nw-gyp --target="${nw_target}" ${msvs} ${arch} ${debug} ${configure} build
