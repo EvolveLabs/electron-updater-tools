@@ -3,8 +3,10 @@ configure=""
 debug="-d"
 target="0.28.2"
 arch=""
+dist="https://atom.io/download/atom-shell"
+plat=`uname`
 
-if [ `uname` = 'Linux' ] || [`uname` = 'Darwin']; then
+if [ $plat == 'Linux' ] || [ $plat == 'Darwin' ]; then
   msvs=""
 else
   msvs="--msvs_version=2013"
@@ -23,12 +25,18 @@ case $key in
     -r|--release|release)
     debug=""
     ;;
+
     -d|--debug|debug)
     debug="-d" # default
     ;;
 
     -t|--target)
     target="$2"
+    shift
+    ;;
+
+    -D|--dist|--dist-url)
+    dist="$2"
     shift
     ;;
 
@@ -54,4 +62,4 @@ esac
 shift
 done
 
-HOME=~/.electron-gyp node-gyp --target="${target}" ${msvs} ${arch} ${debug} ${configure} build
+HOME=~/.electron-gyp node-gyp --target="${target}" ${msvs} ${arch} ${debug} --dist-url=${dist} ${configure} build
