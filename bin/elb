@@ -1,7 +1,7 @@
 #!/bin/bash
 configure=""
 debug="-d"
-el_target="0.28.2"
+target="0.28.2"
 arch=""
 
 if [ `uname` = 'Linux' ] || [`uname` = 'Darwin']; then
@@ -10,8 +10,10 @@ else
   msvs="--msvs_version=2013"
 fi
 
-for i in "$@"; do
-case $i in
+while [[ $# > 0 ]]
+do
+key="$1"
+case $key in
     # configure
     -c|--configure|configure)
     configure="configure"
@@ -23,6 +25,16 @@ case $i in
     ;;
     -d|--debug|debug)
     debug="-d" # default
+    ;;
+
+    -t|--target)
+    target="$2"
+    shift
+    ;;
+
+    --msvs)
+    msvs="$2"
+    shift
     ;;
 
     #arch
@@ -39,6 +51,7 @@ case $i in
     exit 1
     ;;
 esac
+shift
 done
 
-nw-gyp --target="${nw_target}" ${msvs} ${arch} ${debug} ${configure} build
+HOME=~/.electron-gyp node-gyp --target="${target}" ${msvs} ${arch} ${debug} ${configure} build
