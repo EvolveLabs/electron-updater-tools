@@ -35,7 +35,7 @@ function download(dir, url) {
   })
 }
 
-function bingetDir(dir, info) {
+function bingetDir(dir, info, cb) {
   var packagePath = path.join(dir, 'package.json')
   if (dir !== process.cwd()) { // skip self
     fs.readFile(packagePath, {encoding:'utf8'}, function (err, result) {
@@ -67,7 +67,7 @@ function bingetDir(dir, info) {
       fs.lstat(p, function (err, result) {
         if(err || result.isSymbolicLink()) return
         if(result.isDirectory())
-          bingetDir(p, info)
+          bingetDir(p, info, cb)
       })
     })
   })
@@ -79,8 +79,10 @@ program
 
 var platform = os.platform()
 var arch = os.arch()
-console.log('binget: ' + program.channel.gray)
+console.log('elget: ' + program.channel.gray)
 bingetDir(process.cwd(), {
   channel: program.channel,
   platform: platform
+}, function (err) {
+  console.log('[' + 'error'.red + ']: ' + err)
 })
