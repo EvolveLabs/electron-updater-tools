@@ -23,7 +23,8 @@
   "bin": {
     "elb": "./bin/elb",
     "elpack": "./bin/elpack",
-    "elpub": "./bin/elpub"
+    "elpub": "./bin/elpub",
+    "elget": "./bin/elget"
   },
   "dependencies": {
     "async": "^0.9.0",
