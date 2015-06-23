@@ -44,7 +44,8 @@ static FARPROC WINAPI load_exe_hook(unsigned int event, DelayLoadInfo* info)
       _stricmp(info->szDll, "node.dll") != 0)
   	return NULL;
 
-  HMODULE m = GetModuleHandle(info->szDll) || GetModuleHandle(NULL);
+  HMODULE m = GetModuleHandle(info->szDll);
+  if (m == NULL) m = GetModuleHandle(NULL);
   return (FARPROC) m;
 }
 
