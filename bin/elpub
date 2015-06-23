@@ -15,6 +15,7 @@ var plat = os.platform()
 
 program
 	.version(version)
+	.option('-b, --bucket [bucket]', 'Specify the amazon bucket')
 	.option('-c, --channel [dev]', 'Select the channel [release, beta, dev, master]', 'master')
 	.option('-C, --configuration [configuration]', 'Select the configuration [debug, release]', 'debug')
 	.option('-a, --arch [arch]', 'Select the architecture to deploy [x86, x64]', 'x64')
@@ -23,6 +24,7 @@ program
 	.parse(process.argv)
 
 var fileName = `${name}-${version}-${plat}-${program.arch}-${program.configuration}-${program.channel}.tgz`
+var bucket = program.bucket
 
 fs.readFile('.amazon', {encoding: 'utf8'}, function (err, data) {
 	var credentials = {
@@ -37,7 +39,6 @@ fs.readFile('.amazon', {encoding: 'utf8'}, function (err, data) {
 			console.log('     "accessKeyId": "your s3 key",')
 			console.log('     "secretAccessKey": "your s3 secret"')
 			console.log('  }')
-			console.log('  The access keys are in 1pass')
 			console.log('  ' + 'WARNING'.yellow + ': DO NOT CHECK IN YOUR .amazon file!')
 			console.log('  Add an entry into your ' + '.gitignore'.green + ' file so make sure that this file is not checked in accidentally.')
 			return
@@ -60,7 +61,7 @@ fs.readFile('.amazon', {encoding: 'utf8'}, function (err, data) {
 	var uploader = client.uploadFile({
 	  localFile: fileName,
 	  s3Params: {
-	    Bucket: "evolve-bin",
+	    Bucket: bucket,
 	    Key:  name + "/" + fileName,
 	    ACL: 'public-read'
 	    // other options supported by putObject, except Body and ContentLength. 
@@ -87,7 +88,7 @@ fs.readFile('.amazon', {encoding: 'utf8'}, function (err, data) {
 	uploader.on('end', function() {
 		console.log()
 		if(!error) {
-			var url = `https://s3.amazonaws.com/evolve-bin/${name}/${fileName}`
+			var url = `https://s3.amazonaws.com/${bucket}/${name}/${fileName}`
 			console.log('[' + name.magenta + '] ' + url.gray);
 			console.log('[' + name.magenta + '] ' + 'success.'.green);
 		} else {

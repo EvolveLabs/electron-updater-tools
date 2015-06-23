@@ -1,10 +1,10 @@
 #!/bin/bash
 configure=""
 debug="-d"
-nw_target="0.12.0"
+el_target="0.28.2"
 arch=""
 
-if [ `uname` = 'Linux' ]; then
+if [ `uname` = 'Linux' ] || [`uname` = 'Darwin']; then
   msvs=""
 else
   msvs="--msvs_version=2013"

@@ -21,9 +21,9 @@
   },
   "homepage": "https://github.com/evolvelabs/electron-updater-tools#readme",
   "bin": {
-    "nwb": "./bin/nwb",
-    "nwpack": "./bin/nwpack",
-    "nwpub": "./bin/nwpub"
+    "elb": "./bin/elb",
+    "elpack": "./bin/elpack",
+    "elpub": "./bin/elpub"
   },
   "dependencies": {
     "async": "^0.9.0",
