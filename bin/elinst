@@ -1,5 +1,4 @@
-
-
+#!/bin/bash
 dirname=`dirname $0`
 
 if [ "$CI" == "true" ]; then
