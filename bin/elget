@@ -7,82 +7,93 @@ var fs = require('fs')
   tar = require('tar-fs')
   zlib = require('zlib')
   util = require('util')
-  program = require('commander')
+  program = require('commander'),
+  async = require('async')
 
 function unpack(dir, s) {
-  console.log(`[${dir.magenta}] extracting...`)
-    var z = zlib.createGunzip();
-    var e = tar.extract(dir, {
-      map: function (header) {
-        console.log(header.name.gray)
-        return header
-      }
-    })
-    s.pipe(z).pipe(e)
+  var z = zlib.createGunzip();
+  var e = tar.extract(dir, {
+    map: function (header) {
+      console.log(header.name.gray)
+      return header
+    }
+  })
+  s.pipe(z).pipe(e)
 }
 
-function download(dir, url) {
-  console.log('  ' + url.gray)
+function download(dir, url, callback) {
   https.get(url, function (res) {
     if(res.statusCode > 300 && res.statusCode <= 308) {
-      download(dir, res.headers.location);
-        } else if(res.statusCode === 200) {
-            unpack(dir, res)
-        } else {
-            console.log(util.inspect({ code: res.statusCode, headers: res.headers }))
-            return process.exit(1)
-        }
+      download(dir, res.headers.location, callback);
+    } else if(res.statusCode === 200) {
+      console.log(`[${path.basename(dir).green}] binaries downloaded.`)
+      console.log('  ' + url.gray)
+      unpack(dir, res)
+      callback(null, true)
+    } else if(res.statusCode === 404) {
+      callback(null, false)
+    } else {
+      callback(new Error({ statusCode: res.statusCode, headers: res.headers }))
+    }
   })
 }
 
-function bingetDir(dir, info, cb) {
+function bingetDir(dir, info, callback) {
   var packagePath = path.join(dir, 'package.json')
-  if (dir !== process.cwd()) { // skip self
-    fs.readFile(packagePath, {encoding:'utf8'}, function (err, result) {
-      if(err) return
-      var package = JSON.parse(result)
-      if(package && package.binaries) {
-        console.log(`[${dir.magenta}] downloading binaries...`)
-        package.binaries.forEach(function (bin) {
-          ['x86', 'x64'].forEach(function (arch) {
-            ['debug', 'release'].forEach(function (configuration) {
-              var url = bin
-                .replace(/{name}/g, package.name)
-                .replace(/{version}/g, package.version)
-                .replace(/{platform}/g, info.platform)
-                .replace(/{arch}/g, arch)
-                .replace(/{configuration}/g, configuration)
-                .replace(/{channel}/g, info.channel)
-              download(dir, url)
-            })
-          })
+  fs.readFile(packagePath, {encoding:'utf8'}, function (err, result) {
+    if(err) return callback(null, false)
+    var package = JSON.parse(result)
+    if(package && package.binaries) {
+      async.map(
+        package.binaries,
+        function (bin, callback) {
+          var url = bin
+            .replace(/{name}/g, package.name)
+            .replace(/{version}/g, package.version)
+            .replace(/{platform}/g, info.platform)
+            .replace(/{arch}/g, info.arch)
+            .replace(/{configuration}/g, 'release')
+            .replace(/{channel}/g, info.channel)
+          download(dir, url, callback)
+        },
+        function (err, results) {
+          if(err) return callback(err)
+          callback(null, results.indexOf(false) == -1)
         })
-      }
-    })
-  }
-  fs.readdir(dir, function (err, result) {
-    if (err) return
-    result.forEach(function (f) {
-      var p = path.join(dir, f)
-      fs.lstat(p, function (err, result) {
-        if(err || result.isSymbolicLink()) return
-        if(result.isDirectory())
-          bingetDir(p, info, cb)
-      })
-    })
+    } else {
+      callback(null, false)
+    }
   })
 }
-
-program
-  .option('-c, --channel [channel]', 'Specify the channel.', 'master')
-  .parse(process.argv)
 
 var platform = os.platform()
 var arch = os.arch()
-console.log('elget: ' + program.channel.gray)
-bingetDir(process.cwd(), {
+var dir = process.cwd()
+program
+  .option('-c, --channel [master]', 'Specify the channel.', 'master')
+  .option('-C, --configuration [release]', 'Specify the configuration.', 'release')
+  .option(`-a, --arch [$arch]`, 'Specify the architecture.', arch)
+  .option(`-p, --platform [$platform]`, 'Specify the platform.', platform)
+  .parse(process.argv)
+
+var options = {
   channel: program.channel,
-  platform: platform
-}, function (err) {
-  console.log('[' + 'error'.red + ']: ' + err)
+  configuration: program.configuration,
+  arch: program.arch,
+  platform: program.platform
+}
+
+bingetDir(dir, options , function (err, result) {
+  if(err) {
+    console.log('[' + 'error'.red + ']: ' + err)
+    process.exit(-1)
+  } else {
+    if (result) {
+      process.exit(0)
+    } else {
+      console.log(`[${path.basename(dir).yellow}] failed to download binaries.`)
+      console.log(`  ${util.inspect(options).gray}`)
+      process.exit(1)
+    }
+  }
 })

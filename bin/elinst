@@ -1,0 +1,26 @@
+
+
+dirname=`dirname $0`
+
+if [ "$CI" == "true" ]; then
+  echo 'Skipping install...'
+else
+  $dirname/elget
+  case $? in
+      # error
+      -1)
+      exit 1
+      ;;
+
+      # binaries downloaded successfully
+      0)
+      exit 0
+      ;;
+
+      # binaries not found, build locally instead
+      1)
+      $dirname/elb configure release
+      exit $?
+      ;;
+  esac
+fi
