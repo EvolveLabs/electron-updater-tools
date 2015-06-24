@@ -62,4 +62,15 @@ esac
 shift
 done
 
-HOME=~/.electron-gyp node-gyp --target="${target}" ${msvs} ${arch} ${debug} --dist-url=${dist} ${configure} build
+if [ "$NPM_CONFIG_PREFIX" != "" ] && [ -f "${NPM_CONFIG_PREFIX}/node-gyp" ]; then
+    # prefer globally installed node-gyp during "npm install"
+    command=${NPM_CONFIG_PREFIX}/node-gyp
+else
+    command=`which node-gyp`
+fi
+
+#env
+#echo $command
+#exit 0
+
+HOME=~/.electron-gyp "${command}" --target="${target}" ${msvs} ${arch} ${debug} --dist-url=${dist} ${configure} build
