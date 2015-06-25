@@ -10,15 +10,17 @@ var fs = require('fs')
   program = require('commander'),
   async = require('async')
 
-function unpack(dir, s) {
+function unpack(dir, s, callback) {
   var z = zlib.createGunzip();
   var e = tar.extract(dir, {
     map: function (header) {
-      console.log(header.name.gray)
+      console.log('    ' + header.name.gray)
       return header
     }
   })
-  s.pipe(z).pipe(e)
+  s.pipe(z).pipe(e).on('done', function () {
+    callback(null, true)
+  })
 }
 
 function download(dir, url, callback) {
@@ -28,8 +30,8 @@ function download(dir, url, callback) {
     } else if(res.statusCode === 200) {
       console.log(`[${path.basename(dir).green}] binaries downloaded.`)
       console.log('  ' + url.gray)
-      unpack(dir, res)
-      callback(null, true)
+      console.log('  to: ' + dir.gray)
+      unpack(dir, res, callback)
     } else if(res.statusCode === 404) {
       callback(null, false)
     } else {
