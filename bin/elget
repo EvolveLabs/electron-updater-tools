@@ -30,7 +30,7 @@ function download(dir, url, callback) {
     } else if(res.statusCode === 200) {
       console.log(`[${path.basename(dir).green}] binaries downloaded.`)
       console.log('  ' + url.gray)
-      console.log('  to: ' + dir.gray)
+      console.log(('  to: ' + dir).gray)
       unpack(dir, res, callback)
     } else if(res.statusCode === 404) {
       callback(null, false)
