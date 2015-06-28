@@ -17,12 +17,11 @@ var plat = os.platform()
 
 program
 	.version(version)
-	.option('-c, --channel [dev]', 'Select the channel [release, beta, dev, master]', 'master')
 	.option('-C, --configuration [configuration]', 'Select the configuration [debug, release]', 'debug')
 	.option('-a, --arch [arch]', 'Select the architecture of the build to package [x86, x64]', 'x64')
 	.parse(process.argv)
 
-var outName = `${name}-${version}-${plat}-${program.arch}-${program.configuration}-${program.channel}.tgz`
+var outName = `${name}-${version}-${plat}-${program.arch}-${program.configuration}.tgz`
 
 var dir = program.configuration === 'release'
 	? 'build/Release'

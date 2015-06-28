@@ -16,14 +16,13 @@ var plat = os.platform()
 program
 	.version(version)
 	.option('-b, --bucket [bucket]', 'Specify the amazon bucket')
-	.option('-c, --channel [dev]', 'Select the channel [release, beta, dev, master]', 'master')
 	.option('-C, --configuration [configuration]', 'Select the configuration [debug, release]', 'debug')
 	.option('-a, --arch [arch]', 'Select the architecture to deploy [x86, x64]', 'x64')
 	.option('-i, --accessKeyId [id]', 'Specify the S3 Access Key Id to use')
 	.option('-k, --secretAccessKey [key]', 'Specify the S3 Secret Access key to use')
 	.parse(process.argv)
 
-var fileName = `${name}-${version}-${plat}-${program.arch}-${program.configuration}-${program.channel}.tgz`
+var fileName = `${name}-${version}-${plat}-${program.arch}-${program.configuration}.tgz`
 var bucket = program.bucket
 
 fs.readFile(path.join(process.env.HOME, '.amazon'), {encoding: 'utf8'}, function (err, data) {

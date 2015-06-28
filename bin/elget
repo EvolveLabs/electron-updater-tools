@@ -55,7 +55,7 @@ function bingetDir(dir, info, callback) {
             .replace(/{platform}/g, info.platform)
             .replace(/{arch}/g, info.arch)
             .replace(/{configuration}/g, 'release')
-            .replace(/{channel}/g, info.channel)
+            .replace(/{channel}/g, 'master')
           download(dir, url, callback)
         },
         function (err, results) {
@@ -72,14 +72,12 @@ var platform = os.platform()
 var arch = os.arch()
 var dir = process.cwd()
 program
-  .option('-c, --channel [master]', 'Specify the channel.', 'master')
   .option('-C, --configuration [release]', 'Specify the configuration.', 'release')
   .option(`-a, --arch [$arch]`, 'Specify the architecture.', arch)
   .option(`-p, --platform [$platform]`, 'Specify the platform.', platform)
   .parse(process.argv)
 
 var options = {
-  channel: program.channel,
   configuration: program.configuration,
   arch: program.arch,
   platform: program.platform
