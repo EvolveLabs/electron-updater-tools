@@ -1,6 +1,6 @@
 {
   "name": "electron-updater-tools",
-  "version": "0.0.10",
+  "version": "0.1.0",
   "description": "Tools for building native addons compatible with electron-updater",
   "main": "index.js",
   "scripts": {
