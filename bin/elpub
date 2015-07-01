@@ -25,7 +25,7 @@ program
 var fileName = `${name}-${version}-${plat}-${program.arch}-${program.configuration}.tgz`
 var bucket = program.bucket
 
-fs.readFile(path.join(process.env.HOME, '.amazon'), {encoding: 'utf8'}, function (err, data) {
+fs.readFile(path.join(process.env.HOME || process.env.USERPROFILE, '.amazon'), {encoding: 'utf8'}, function (err, data) {
 	var credentials = {
 		accessKeyId: program.accessKeyId,
 		secretAccessKey: program.secretAccessKey
