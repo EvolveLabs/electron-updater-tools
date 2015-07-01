@@ -10,14 +10,14 @@ var program = require('commander')
 var config = JSON.parse(fs.readFileSync('package.json'))
 var version = config.version
 var name = config.name
-var arch = process.arch
+var arch = os.arch()
 var plat = os.platform()
 
 program
 	.version(version)
 	.option('-b, --bucket [bucket]', 'Specify the amazon bucket')
 	.option('-C, --configuration [configuration]', 'Select the configuration [debug, release]', 'debug')
-	.option('-a, --arch [arch]', 'Select the architecture to deploy [x86, x64]', 'x64')
+	.option('-a, --arch [arch]', 'Select the architecture to deploy [ia32, x64]', arch)
 	.option('-i, --accessKeyId [id]', 'Specify the S3 Access Key Id to use')
 	.option('-k, --secretAccessKey [key]', 'Specify the S3 Secret Access key to use')
 	.parse(process.argv)

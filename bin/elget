@@ -24,11 +24,13 @@ function unpack(dir, s, callback) {
 }
 
 function download(dir, url, callback) {
+  console.log(`[${path.basename(dir).green}] downloading binary...`)
+  console.log('  from:' + url.gray)
   https.get(url, function (res) {
     if(res.statusCode > 300 && res.statusCode <= 308) {
       download(dir, res.headers.location, callback);
     } else if(res.statusCode === 200) {
-      console.log(`[${path.basename(dir).green}] binaries downloaded.`)
+      console.log(`[${path.basename(dir).green}] binary downloaded.`)
       console.log('  ' + url.gray)
       console.log(('  to: ' + dir).gray)
       unpack(dir, res, callback)
