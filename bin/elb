@@ -5,6 +5,7 @@ target="0.28.2"
 arch=""
 dist="https://atom.io/download/atom-shell"
 plat=`uname`
+directory=""
 
 if [ $plat == 'Linux' ] || [ $plat == 'Darwin' ]; then
   msvs=""
@@ -58,6 +59,11 @@ case $key in
     shift
     ;;
 
+    -d|--directory)
+    directory="--directory=\"$2\""
+    shift
+    ;;
+
     # unknown option
     *) 
     echo "Unknown option: $i"
@@ -78,4 +84,4 @@ fi
 #echo $command
 #exit 0
 
-HOME=~/.electron-gyp "${command}" --target="${target}" ${msvs} ${arch} ${debug} --dist-url=${dist} ${configure} build
+HOME=~/.electron-gyp "${command}" --target="${target}" ${msvs} ${arch} ${debug} ${directory} --dist-url=${dist} ${configure} build
