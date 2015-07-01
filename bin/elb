@@ -46,11 +46,16 @@ case $key in
     ;;
 
     #arch
-    -x86|x86)
+    -x86|x86|-ia32|ia32)
     arch="--arch=ia32"
     ;;
     -x64|x64)
-    arch="" # default
+    arch="--arch=x64"
+    ;;
+
+    -a|--arch)
+    arch="--arch=$2"
+    shift
     ;;
 
     # unknown option
