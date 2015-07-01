@@ -40,7 +40,7 @@ fs.readFile(path.join(process.env.HOME || process.env.USERPROFILE, '.amazon'), {
 			console.log('     "secretAccessKey": "your s3 secret"')
 			console.log('  }')
 			console.log('  ' + 'WARNING'.yellow + ': DO NOT CHECK IN YOUR .amazon file!')
-			return
+			return process.exit(1)
 		} else {
 			credentials = JSON.parse(data);
 		}
