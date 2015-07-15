@@ -1,0 +1,9 @@
+language: node_js
+node_js:
+  - "iojs-v2.3.4"
+
+before_install:
+  - npm install
+
+script:
+  - echo done.
