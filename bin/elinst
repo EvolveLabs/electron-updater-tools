@@ -10,12 +10,13 @@ case $? in
 
     # binaries downloaded successfully
     0)
+    $dirname/elget -C debug
     exit 0
     ;;
 
     # binaries not found, build locally instead
     1)
-    $dirname/elb configure release
+    $dirname/elb configure debug release
     exit $?
     ;;
 esac
