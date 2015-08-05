@@ -1,6 +1,34 @@
 #!/bin/bash
 dirname=`dirname $0`
 
+# Process command line args
+while [[ $# > 0 ]]
+do
+key="$1"
+case $key in
+    #target
+    -t|--target)
+    target="--target=$2"
+    shift
+    ;;
+
+    # unknown option
+    *) 
+    echo "Unknown option: $i"
+    exit 1
+    ;;
+esac
+shift
+done
+
+
+# First attempt to download release binaries
+#  If they exist, then also try to get the debug binaries. 
+#  If those don't exist, that's ok. We're done.
+# If they don't exist then attempt to build instead, using
+#  - target from env or
+#  - target from command line
+#  - or hard coded default target.
 $dirname/elget
 case $? in
     # error

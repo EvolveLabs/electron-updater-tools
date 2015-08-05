@@ -1,7 +1,6 @@
 #!/bin/bash
 configure=""
 debug="-d"
-target="0.28.2"
 arch=""
 dist="https://atom.io/download/atom-shell"
 plat=`uname`
@@ -32,7 +31,7 @@ case $key in
     ;;
 
     -t|--target)
-    target="$2"
+    ELECTRON_VERSION="$2"
     shift
     ;;
 
@@ -80,8 +79,23 @@ else
     command=`which node-gyp`
 fi
 
-#env
-#echo $command
-#exit 0
+# Get the version of electron if it wasn't specified.
+if [ ! $ELECTRON_VERSION ]; then
+    # otherwise, attempt to get the current latest version of electron from github
+    ELECTRON_VERSION=`curl https://github.com/atom/electron/releases/latest -Is | grep 'Location: ' | cut -f2- -d' '`
+    ELECTRON_VERSION=`basename $ELECTRON_VERSION | cut -f2- -d'v'`
+fi
 
-HOME=~/.electron-gyp "${command}" --target="${target}" ${msvs} ${arch} ${debug} ${directory} --dist-url=${dist} ${configure} build
+if [ ! $ELECTRON_VERSION ]; then
+    # if we failed to get the latest version there may be a problem, report to user:
+    echo ''
+    echo 'Error: Failed to get valid electron version.'
+    echo ''
+    echo 'Please specify by one of the following methods:'
+    echo '  command line arg:     --target $version'
+    echo '  environment variable: export ELECTRON_VERSION=$version'
+    echo '  ensure web access to: https://github.com/atom/electron/releases/latest'
+    exit 1
+fi
+
+HOME=~/.electron-gyp "${command}" --target="${ELECTRON_VERSION}" ${msvs} ${arch} ${debug} ${directory} --dist-url=${dist} ${configure} build
