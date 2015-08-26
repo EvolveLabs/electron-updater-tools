@@ -30,7 +30,7 @@ case $key in
     debug="-d" # default
     ;;
 
-    -t|--target)
+    -t|--target|ELECTRON_VERSION)
     ELECTRON_VERSION="$2"
     shift
     ;;
@@ -82,8 +82,20 @@ fi
 # Get the version of electron if it wasn't specified.
 if [ ! $ELECTRON_VERSION ]; then
     # otherwise, attempt to get the current latest version of electron from github
-    ELECTRON_VERSION=`curl https://github.com/atom/electron/releases/latest -Is | grep 'Location: ' | cut -f2- -d' '`
-    ELECTRON_VERSION=`basename $ELECTRON_VERSION | cut -f2- -d'v'`
+    LATEST=`curl https://github.com/atom/electron/releases/latest -Is | grep 'Location: ' | cut -f2- -d' '`
+    LATEST=`basename $LATEST | cut -f2- -d'v'`
+
+    read -p "ELECTRON_VERSION not set. Please specify an electron version ('latest' for $LATEST): " EV
+    case $EV in
+        l|latest)
+        ELECTRON_VERSION=$LATEST
+        ;;
+        *)
+        ELECTRON_VERSION=$EV
+        ;;
+    esac
+
+    echo "Using electron version: v$ELECTRON_VERSION"
 fi
 
 if [ ! $ELECTRON_VERSION ]; then
