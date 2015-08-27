@@ -19,10 +19,10 @@ And
 ```
 'conditions' : [
   ['OS == "win"', {
+    'libraries': [
+      '-lShlwapi.lib'
+    ],
     'msvs_settings': {
-    	'libraries': [
-    		'-lShlwapi.lib'
-    	],
       'VCLinkerTool': {
           'DelayLoadDLLs': [ 'node.dll', 'iojs.exe', 'node.exe' ],
           # Don't print a linker warning when no imports from either .exe
