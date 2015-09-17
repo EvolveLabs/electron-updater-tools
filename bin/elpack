@@ -36,8 +36,6 @@ fs.readdir(dir, function (err, result) {
 	}
 	var entries = []
 	result.forEach(function (f) {
-		if (f.indexOf(binName) < 0)
-			return
 		if (path.extname(f) === '.exe')
 			entries.push(path.join(dir, f))
 		if (path.extname(f) === '.node')
@@ -46,10 +44,10 @@ fs.readdir(dir, function (err, result) {
 			entries.push(path.join(dir, f))
 		if (path.extname(f) === '.lib')
 			entries.push(path.join(dir, f))
-		if (path.extname(f) === '.a')
-			entries.push(path.join(dir, f))
-		if (path.extname(f) === '.dylib')
-			entries.push(path.join(dir, f))
+        if (path.extname(f) === '.a')
+            entries.push(path.join(dir, f))
+        if (path.extname(f) === '.dylib')
+        	entries.push(path.join(dir, f))
 	})
 	if (entries.length === 0) {
 		console.log('[' + 'error'.red + '] no output found.')
