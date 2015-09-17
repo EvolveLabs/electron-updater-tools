@@ -106,6 +106,7 @@ if [ ! $ELECTRON_VERSION ]; then
     echo 'Please specify by one of the following methods:'
     echo '  command line arg:     --target $version'
     echo '  environment variable: export ELECTRON_VERSION=$version'
+    echo '  add "engines": [ "electron": "<version>" ] to your package.json'
     echo '  ensure web access to: https://github.com/atom/electron/releases/latest'
     exit 1
 fi
