@@ -1,6 +1,6 @@
 {
   "name": "electron-updater-tools",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "description": "Tools for building native addons compatible with electron-updater",
   "main": "index.js",
   "scripts": {
@@ -25,6 +25,7 @@
     "elpack": "./bin/elpack",
     "elpub": "./bin/elpub",
     "elget": "./bin/elget",
+    "elver": "./bin/elver.js",
     "elinst": "./bin/elinst",
     "link-plugin": "./bin/link-plugin",
     "lnp": "./bin/link-plugin"
@@ -35,6 +36,7 @@
     "colors": "^1.0.3",
     "commander": "^2.7.1",
     "s3": "^4.4.0",
+    "semver": "^5.0.1",
     "shelljs": "^0.4.0",
     "tar-fs": "^1.5.0"
   }
